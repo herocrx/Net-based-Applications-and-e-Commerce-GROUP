@@ -19,24 +19,7 @@ void error(const char *msg)
 
 int main(int argc, char *argv[])
 {   
-    fstream fs;
-    fs.open ("bash_cheat_sheet.pdf", fstream::in | fstream::out | fstream::app);
-    if( fs.good() == true ){
-        cout << "There's an access to a file!" << endl;
-
-    }
-    else 
-        cout << "Access to the file is forbidden!"<< endl;
-   // char bufor [1024];
-   fs.seekg ( 0,ios::end);
-    int length = fs.tellg();
-    fs.seekg(0, ios::beg);  
-    cout << "The variabe size has value: " << length << endl;
-    string napis; 
-   // fs.read(bufor,length);
-    fs.close();
     bool flag = true;
-    do {
     int sockfd, portno, n;
     struct sockaddr_in serv_addr;
     struct hostent *server;
@@ -69,17 +52,54 @@ int main(int argc, char *argv[])
     if (connect(sockfd,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0) 
         error("ERROR connecting");
     printf("Please enter the message: ");
-    bzero(buffer,256);
-    fgets(buffer,255,stdin);
-    n = write(sockfd,buffer,strlen(buffer));
-    if (n < 0) 
-         error("ERROR writing to socket");
+    /*
+     *
+     *
+     *Send file
+     *
+     *
+     */
+    fstream fs;
+    fs.open ("bash_cheat_sheet.pdf", fstream::in | fstream::out | fstream::app);
+    if( fs.good() == true ){
+        cout << "There's an access to a file!" << endl;
+
+    }
+    else 
+        cout << "Access to the file is forbidden!"<< endl;
+    long int length = fs.tellg();
+    fs.seekg (0,ios::end);
+    length = fs.tellg() - length;
+    fs.seekg(0, ios::beg);  
+    cout << "The variabe size has value: " << length << endl;
+    const int size_of_packet = length;
+    double procent;
+    int count_bits = 0;
+    cout << "START SENDNING DATA" << endl;
+    cout << "--------------------------------------" << endl;
+    while(length>count_bits){
+        if(fs.read(buffer,size_of_packet) == "-1")
+            cout << "error!" << endl;
+        else
+            cout << "no error!" << endl;
+        n = write(sockfd,buffer,size_of_packet);
+        if (n < 0) 
+             error("ERROR writing to socket");
+        count_bits = count_bits + size_of_packet;
+        procent = (double(count_bits)/length)*100;
+        cout << int(procent) << "% ";
+    }
+    if(count_bits>length){
+        n = write(sockfd,buffer,(count_bits-length));
+    }
+    cout << procent << "100%" << endl;
+    cout << "--------------------------------------" << endl;
+    fs.close();
     bzero(buffer,256);
     n = read(sockfd,buffer,255);
     if (n < 0) 
          error("ERROR reading from socket");
     printf("%s\n",buffer);
     close(sockfd);
-    } while(1);
     return 0;
     }

@@ -7,7 +7,7 @@
 #include <sys/types.h> 
 #include <sys/socket.h>
 #include <netinet/in.h>
-
+#include <fstream>
 void error(const char *msg)
 {
     perror(msg);
@@ -39,6 +39,16 @@ int main(int argc, char *argv[])
               error("ERROR on binding");
     do{
      listen(sockfd,5);
+     fstream fs;
+     int number_of_file =0
+      fs.open ("bash_cheat_sheet.pdf"+number_of_file, fstream::in | fstream::out |     fstream::app);
+     number_of_file++;
+     if( fs.good() == true ){
+         cout << "There's an access to a file!" << endl;
+ 
+     }
+     else
+         cout << "Access to the file is forbidden!"<< endl;
      clilen = sizeof(cli_addr);
      newsockfd = accept(sockfd, 
                  (struct sockaddr *) &cli_addr, 
@@ -46,11 +56,12 @@ int main(int argc, char *argv[])
      if (newsockfd < 0) 
           error("ERROR on accept");
      bzero(buffer,256);
-     n = read(newsockfd,buffer,255);
+     n = read(newsockfd,buffer);
      if (n < 0) error("ERROR reading from socket");
      printf("Here is the message: %s\n",buffer);
      n = write(newsockfd,"I got your message",18);
      if (n < 0) error("ERROR writing to socket");
+    
     }
     while(1);
      close(newsockfd);
