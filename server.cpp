@@ -7,7 +7,9 @@
 #include <sys/types.h> 
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <iostream>
 #include <fstream>
+using namespace std;
 void error(const char *msg)
 {
     perror(msg);
@@ -16,7 +18,6 @@ void error(const char *msg)
 
 int main(int argc, char *argv[])
 {
-    
      int sockfd, newsockfd, portno;
      socklen_t clilen;
      char buffer[256];
@@ -37,33 +38,67 @@ int main(int argc, char *argv[])
      if (bind(sockfd, (struct sockaddr *) &serv_addr,
               sizeof(serv_addr)) < 0) 
               error("ERROR on binding");
-    do{
-     listen(sockfd,5);
-     fstream fs;
-     int number_of_file =0
-      fs.open ("bash_cheat_sheet.pdf"+number_of_file, fstream::in | fstream::out |     fstream::app);
-     number_of_file++;
-     if( fs.good() == true ){
-         cout << "There's an access to a file!" << endl;
- 
-     }
-     else
-         cout << "Access to the file is forbidden!"<< endl;
-     clilen = sizeof(cli_addr);
-     newsockfd = accept(sockfd, 
-                 (struct sockaddr *) &cli_addr, 
-                 &clilen);
-     if (newsockfd < 0) 
-          error("ERROR on accept");
-     bzero(buffer,256);
-     n = read(newsockfd,buffer);
-     if (n < 0) error("ERROR reading from socket");
-     printf("Here is the message: %s\n",buffer);
-     n = write(newsockfd,"I got your message",18);
-     if (n < 0) error("ERROR writing to socket");
-    
+    char NameOfFile[256];
+    long int length_of_file;
+    int length_of_packet;
+    int nr_received_packet = 1; 
+    while(1){
+         listen(sockfd,5);
+         clilen = sizeof(cli_addr);
+         newsockfd = accept(sockfd, 
+                     (struct sockaddr *) &cli_addr, 
+                     &clilen);
+         if (newsockfd < 0) 
+              error("ERROR on accept");
+         fstream fs;
+         int Nr_Received_Bytes = 0;
+         double procent;
+         do{
+             bzero(buffer,256);
+             n = read(newsockfd,buffer,256);
+             if (n < 0) error("ERROR reading from socket");  
+             int cnt;
+             
+             switch(nr_received_packet){
+                case 1:
+                    cout << " Chuuujek kurwa pierdolona" << endl;
+                    cnt = 0;
+                    while(buffer[cnt] != 'f'){
+                        NameOfFile[cnt] = buffer[cnt];    
+                        cnt++;
+                    }
+                    cout << "Name of a file: " << NameOfFile << endl;
+                    fs.open(NameOfFile,fstream::in | fstream::out | fstream::app);
+                     if( fs.good() == true ){
+                      cout << "There's an access to a file!" << endl; 
+                    }
+                    break;
+                case 2:
+                    length_of_file = atoi(buffer);
+                    cout << "Size of a file: " << buffer << endl;
+                    break;
+                case 3:
+                    length_of_packet =  atoi(buffer);
+                    printf("Size of incoming packets:  %s\n",buffer);
+                    break;
+                default:
+                    procent = (double(Nr_Received_Bytes)/length_of_file)*100;
+                    cout << int(procent) << "% ";
+                    fs << buffer;
+                    if(Nr_Received_Bytes>=length_of_file){
+                        fs.close();
+                        cout << "Chuj wywowalo sie " << endl;
+                        nr_received_packet=-1;
+                    }
+                    Nr_Received_Bytes += length_of_packet;
+                    break;
+             }
+             nr_received_packet++; 
+            // n = write(newsockfd,"I got your message",18);
+            // if (n < 0) error("ERROR writing to socket");
+            
+        } while(Nr_Received_Bytes<length_of_file);
     }
-    while(1);
      close(newsockfd);
      close(sockfd);
     

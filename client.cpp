@@ -60,7 +60,8 @@ int main(int argc, char *argv[])
      *
      */
     fstream fs;
-    fs.open ("bash_cheat_sheet.pdf", fstream::in | fstream::out | fstream::app);
+    char NameOfFile[256] = "bash_cheat_sheet.pdf"; 
+    fs.open (NameOfFile, fstream::in | fstream::out | fstream::app);
     if( fs.good() == true ){
         cout << "There's an access to a file!" << endl;
 
@@ -72,16 +73,28 @@ int main(int argc, char *argv[])
     length = fs.tellg() - length;
     fs.seekg(0, ios::beg);  
     cout << "The variabe size has value: " << length << endl;
-    const int size_of_packet = length;
+    const int size_of_packet = 256;
     double procent;
     int count_bits = 0;
     cout << "START SENDNING DATA" << endl;
     cout << "--------------------------------------" << endl;
-    while(length>count_bits){
-        if(fs.read(buffer,size_of_packet) == "-1")
-            cout << "error!" << endl;
-        else
-            cout << "no error!" << endl;
+    /*Send the general information about the file
+     *1. Name of a file
+     *2. Size of a file
+     *3. Packet size
+     */
+     int counter =0;
+     while(NameOfFile[counter] != '\0'){
+        buffer[counter] = NameOfFile[counter];
+         counter++;
+     }
+     write(sockfd,buffer,counter);
+     sprintf(buffer,"%ld", length);
+     write(sockfd,buffer,size_of_packet);
+     sprintf(buffer,"%ld",(long)size_of_packet);
+     write(sockfd,buffer,size_of_packet);
+     while(length>count_bits){
+        fs.read(buffer,size_of_packet); // each read the pointer shifts
         n = write(sockfd,buffer,size_of_packet);
         if (n < 0) 
              error("ERROR writing to socket");
@@ -92,7 +105,6 @@ int main(int argc, char *argv[])
     if(count_bits>length){
         n = write(sockfd,buffer,(count_bits-length));
     }
-    cout << procent << "100%" << endl;
     cout << "--------------------------------------" << endl;
     fs.close();
     bzero(buffer,256);
