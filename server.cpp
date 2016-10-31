@@ -49,6 +49,8 @@ int main(int argc, char *argv[])
               error("ERROR on accept");
          fstream fs;
          int Nr_Received_Bytes = 0;
+         int Loading_Previous = 0;
+
          double procent;
          do{
              int cnt = 0;
@@ -94,17 +96,26 @@ int main(int argc, char *argv[])
                     break;
                 default:   
                     bzero(buffer,length_of_packet); 
+                    Nr_Received_Bytes += length_of_packet;
                     n = read(newsockfd,buffer,length_of_packet);
                     if (n < 0) error("ERROR reading from socket");  
-                    cout << buffer;
-                    fs.write(buffer,length_of_packet);
-                    Nr_Received_Bytes += length_of_packet;
+                    if(Nr_Received_Bytes < length_of_file)
+                         fs.write(buffer,length_of_packet);
+                    else{
+                        while(buffer[cnt]!='\0')
+                         cnt++;
+                        fs.write(buffer,cnt);
+                    }
+                    procent = double(Nr_Received_Bytes)/double(length_of_file)*100;
+                    if(Loading_Previous != int(procent))
+                        cout << "|";
+                    Loading_Previous = (int)procent;
                     break;
              }
             nr_received_packet++;
         } 
         while(Nr_Received_Bytes<length_of_file);    
-        cout << "Nr_Received_bytes " << Nr_Received_Bytes<< endl;
+        cout << endl <<"Nr_Received_bytes " << Nr_Received_Bytes<< endl;
         fs.close();
         nr_received_packet = 1;
         Nr_Received_Bytes = 0;
