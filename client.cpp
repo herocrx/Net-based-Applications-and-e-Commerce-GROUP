@@ -17,6 +17,7 @@ void error(const char *msg)
     exit(0);
 }
 
+
 int main(int argc, char *argv[])
 {   
     bool flag = true;
@@ -60,8 +61,8 @@ int main(int argc, char *argv[])
      *
      */
     fstream fs;
- char NameOfFile[256] = "Karta studenta Erasmus+.pdf"; 
-   // char NameOfFile[256] = "Karta studenta Erasmus+.pdf"; 
+     char NameOfFile[256] = "Karta studenta Erasmus+.pdf"; 
+   // char NameOfFile[256]  = "text.txt";
     fs.open (NameOfFile, fstream::in | fstream::out | fstream::app);
     if( fs.good() == true ){
         cout << "There's an access to a file!" << endl;
@@ -78,6 +79,7 @@ int main(int argc, char *argv[])
     cout << "The variabe size has value: " << length << endl;
     const int size_of_packet = 255;
     double procent;
+    int procent_previous;
     int count_bits = 0;
     cout << "START SENDNING DATA" << endl;
     cout << "--------------------------------------" << endl;
@@ -100,20 +102,21 @@ int main(int argc, char *argv[])
      while(length-size_of_packet>count_bits){
         count_bits = count_bits + size_of_packet;
         bzero(buffer,size_of_packet);;
-         fs.read(buffer,size_of_packet); // each read the pointer shifts
+        fs.read(buffer,size_of_packet); // each read the pointer shifts
         n = write(sockfd,buffer,size_of_packet);
         if (n < 0) 
              error("ERROR writing to socket");
+        procent = double(count_bits)/double(length)*100;
+        if(int(procent) != procent_previous)
+            cout <<"|";
+        procent_previous = procent; 
     }
-
+    cout << endl;
     bzero(buffer,size_of_packet);;
     fs.read(buffer,size_of_packet); // each read the pointer shifts
     n = write(sockfd,buffer,length-count_bits);
     if (n < 0) 
     error("ERROR writing to socket");
-    
-
-
     cout << "--------------------------------------" << endl;
     fs.close();
     bzero(buffer,255);
