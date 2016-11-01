@@ -125,6 +125,31 @@ int main(int argc, char *argv[])
          error("ERROR reading from socket");
     printf("%s\n",buffer);
     cout << "Modulo ( liczba pozostalych pakietow): " << length%size_of_packet << endl;
-    close(sockfd);
+    close(sockfd); 
+    cout << "////////////////////////////" << endl;
+    cout << "/////////// UDP ////////////" << endl;
+    cout << "////////////////////////////" << endl;
+    int sock;
+    ssize_t recsize;
+    socklen_t fromlen;
+    //memset(&sa, 0, sizeof sa);
+    //sa.sin_family = AF_INET;
+    //sa.sin_addr.s_addr = htonl(INADDR_ANY);
+    //sa.sin_port = htons(7654);
+    fromlen = sizeof serv_addr;
+    sock = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
+    if (bind(sock, (struct sockaddr *)&serv_addr, sizeof serv_addr) == -1) {
+        perror("error bind failed");
+        close(sock);
+        exit(EXIT_FAILURE);
+    }    
+    for (;;) {
+        recsize = recvfrom(sock, (void*)buffer, sizeof length, 0, (struct sockaddr*)&serv_addr, &fromlen);
+        if (recsize < 0) {
+            printf("Error not received a datagram");
+            exit(EXIT_FAILURE);     
+        }
+         printf("recsize: %d\n ", (int)recsize);
+    }
     return 0;
     }
