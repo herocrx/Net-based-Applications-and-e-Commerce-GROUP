@@ -56,9 +56,6 @@ public class UDPcontrolInfo {
 	PortNumber=Integer.parseInt(matcher.group(1));
 	}
 	System.out.println(FileName);
-	System.out.println(HostName);
-	System.out.println(PortNumber);
-
 	return true;
 }
 	String FileName;
