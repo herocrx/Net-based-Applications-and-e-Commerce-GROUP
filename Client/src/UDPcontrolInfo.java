@@ -13,7 +13,7 @@ public class UDPcontrolInfo {
 	
 	public UDPcontrolInfo(int portNumber){
 		try {
-			clientSocket=new DatagramSocket(6006);
+			clientSocket=new DatagramSocket(6008);
 		} catch (SocketException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -23,7 +23,6 @@ public class UDPcontrolInfo {
 	}
 	public Boolean InitializeByteArray(String FileName, String HostName, int TCPportNumber){
 		String _2sendString="'"+FileName+';'+HostName+','+TCPportNumber+",";
-		System.out.println(_2sendString);
 		data=new byte[_2sendString.length()];
 		try {
 			data=_2sendString.getBytes("UTF-8");
