@@ -14,4 +14,16 @@
 	<natures>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>FilesToTranfer/Mostar.cr2</name>
+			<type>1</type>
+			<location>C:/Users/Gosia/git/server/Server/FilesToTranfer/Mostar.cr2</location>
+		</link>
+		<link>
+			<name>FilesToTranfer/acceptance_stutgart.pdf</name>
+			<type>1</type>
+			<location>C:/Users/Gosia/git/server/Server/FilesToTranfer/acceptance_stutgart.pdf</location>
+		</link>
+	</linkedResources>
 </projectDescription>
