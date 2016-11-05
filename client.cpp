@@ -17,139 +17,127 @@ void error(const char *msg)
     exit(0);
 }
 
+class client{ 
+    private:
+        char buffer[256];
+        bool UDPmessage;
+        char NameOfFile[];
+        char  *host_name;
+        int Port_Number;
+        string IP_Client;
+    public:
+        bool SendUDPmessage();
+        void GetDataToServer();
+        client(char*,char*);
+        bool EstablishConnection();
+        bool ReceiveFile();
+        ~client(); 
+};
+
+bool client::ReceiveFile(){
+     int sockfd;
+     struct sockaddr_in serv_addr;
+     struct hostent *server;
+     server = gethostbyname(host_name);
+     if (server == NULL) {
+        fprintf(stderr,"ERROR, no such host\n");
+        exit(0);
+     }
+     sockfd = socket(AF_INET, SOCK_STREAM, 0);
+     if (sockfd < 0) 
+        error("ERROR opening socket");
+     bzero((char *) &serv_addr, sizeof(serv_addr));
+     serv_addr.sin_family = AF_INET;
+     bcopy((char *)server->h_addr, 
+          (char *)&serv_addr.sin_addr.s_addr,
+          server->h_length);
+     serv_addr.sin_port = htons(Port_Number);
+     if (connect(sockfd,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0) 
+        error("ERROR connecting");   fstream fs;
+     fs.open (NameOfFile, fstream::in | fstream::out | fstream::app);
+     if( fs.good() == true ){
+         cout << "There's an access to a file!" << endl;
+     }
+     else 
+        cout << "Access to the file is forbidden!"<< endl; 
+
+    close(sockfd); 
+}
+
+client::client(char *host_name, char *Port):host_name(host_name){
+   Port_Number = atoi(Port);
+   UDPmessage = true;      
+}
+client::~client(){}
+
+bool client::EstablishConnection(){
+}
+
+void client::GetDataToServer(){
+    cout << "Give name of the file: ";
+    cin >> NameOfFile;
+    cout <<endl << "Give port number: ;";
+    cin >> Port_Number;
+    IP_Client = "127.0.0.1";
+}
+
+
+bool client::SendUDPmessage(){
+    int sockfd;
+    int sockfd_new;
+    struct sockaddr_in serv_addr;
+    struct hostent *server;
+    cout << host_name <<endl;
+    server = gethostbyname(host_name);
+    if (server == NULL) {
+         fprintf(stderr,"ERROR, no such host\n");
+         exit(0);
+    }
+    sockfd = socket(AF_INET,SOCK_DGRAM, 0);
+    if (sockfd < 0) 
+        error("ERROR opening socket");
+    bzero((char *) &serv_addr, sizeof(serv_addr));
+    serv_addr.sin_family = AF_INET;
+    bcopy((char *)server->h_addr,(char *)&serv_addr.sin_addr.s_addr,server->h_length);
+    serv_addr.sin_port = htons(Port_Number);
+    //sockfd_new = connect(sockfd,(struct sockaddr *) &serv_addr,sizeof(serv_addr));
+       // error("ERROR connecting");
+     if(sendto(sockfd,&NameOfFile,sizeof(NameOfFile),0,(struct sockaddr *) &serv_addr,sizeof(serv_addr))<0){
+        printf("Error while sending the name of the file \n");
+        UDPmessage = false;
+     }
+     // Send Host name of Client 
+    if(sendto(sockfd,&Port_Number,sizeof(Port_Number),0,(struct sockaddr *) &serv_addr,sizeof(serv_addr))<0){
+        printf("Error while sending the host name\n");
+        UDPmessage = false;
+    }
+     // Send Port number of server socket
+    if(sendto(sockfd,&Port_Number,sizeof(Port_Number),0,(struct sockaddr *) &serv_addr,sizeof(serv_addr))<0){
+        printf("Error while sending the port number\n");
+        UDPmessage = false;
+    }
+    if(UDPmessage == false){
+        printf("Unable to set the connection with the server \n");
+    }
+
+}
 
 int main(int argc, char *argv[])
 {   
     bool flag = true;
-    int sockfd, portno, n;
-    struct sockaddr_in serv_addr;
-    struct hostent *server;
-    char buffer[256];
     if(flag){
         cout << "Liczba argumentow: " << argc << endl;
         for ( int i = 0 ; i < argc;  i++) 
          cout << "Argument " << i <<" to: " << argv[i] << endl; 
     }
-    flag = false;
-    if (argc < 3) {
-       fprintf(stderr,"usage %s hostname port\n", argv[0]);
-       exit(0);
-    }
-    portno = atoi(argv[2]);
-    sockfd = socket(AF_INET, SOCK_STREAM, 0);
-    if (sockfd < 0) 
-        error("ERROR opening socket");
-    server = gethostbyname(argv[1]);
-    if (server == NULL) {
-        fprintf(stderr,"ERROR, no such host\n");
-        exit(0);
-    }
-    bzero((char *) &serv_addr, sizeof(serv_addr));
-    serv_addr.sin_family = AF_INET;
-    bcopy((char *)server->h_addr, 
-         (char *)&serv_addr.sin_addr.s_addr,
-         server->h_length);
-    serv_addr.sin_port = htons(portno);
-    if (connect(sockfd,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0) 
-        error("ERROR connecting");
-    printf("Please enter the message: ");
-    /*
-     *
-     *
-     *Send file
-     *
-     *
-     */
-    fstream fs;
-     char NameOfFile[256] = "Karta studenta Erasmus+.pdf"; 
-   // char NameOfFile[256]  = "text.txt";
-    fs.open (NameOfFile, fstream::in | fstream::out | fstream::app);
-    if( fs.good() == true ){
-        cout << "There's an access to a file!" << endl;
+    // argv1 = Ip_address of the server
+    // argv2 = Port Number of the answer
+    client ClientNr1(argv[1],argv[2]);    
+    ClientNr1.GetDataToServer();
+    ClientNr1.SendUDPmessage();
+    //ClientNr1.ReceiveFile();
+    ClientNr1.~client();
+    return 0;    
 
-    }
-    else 
-        cout << "Access to the file is forbidden!"<< endl;
-    long int length = fs.tellg();
-
-     cout << "Nazwa pliku: " << NameOfFile << endl;
-    fs.seekg (0,ios::end);
-    length = fs.tellg() - length;
-    fs.seekg(0, ios::beg);  
-    cout << "The variabe size has value: " << length << endl;
-    const int size_of_packet = 255;
-    double procent;
-    int procent_previous;
-    int count_bits = 0;
-    cout << "START SENDNING DATA" << endl;
-    cout << "--------------------------------------" << endl;
-    /*Send the general information about the file
-     *1. Name of a file
-     *2. Size of a file
-     *3. Packet size
-     */
-     int counter =0;
-     while(NameOfFile[counter] != '\0'){
-        buffer[counter] = NameOfFile[counter];
-         counter++;
-     }
-     buffer[counter] = '\0';
-     write(sockfd,buffer,counter);
-     sprintf(buffer,"%ld", length);
-     write(sockfd,buffer,256);
-     sprintf(buffer,"%ld",(long)size_of_packet);
-     write(sockfd,buffer,256);
-     while(length-size_of_packet>count_bits){
-        count_bits = count_bits + size_of_packet;
-        bzero(buffer,size_of_packet);;
-        fs.read(buffer,size_of_packet); // each read the pointer shifts
-        n = write(sockfd,buffer,size_of_packet);
-        if (n < 0) 
-             error("ERROR writing to socket");
-        procent = double(count_bits)/double(length)*100;
-        if(int(procent) != procent_previous)
-            cout <<"|";
-        procent_previous = procent; 
-    }
-    cout << endl;
-    bzero(buffer,size_of_packet);;
-    fs.read(buffer,size_of_packet); // each read the pointer shifts
-    n = write(sockfd,buffer,length-count_bits);
-    if (n < 0) 
-    error("ERROR writing to socket");
-    cout << "--------------------------------------" << endl;
-    fs.close();
-    bzero(buffer,255);
-    n = read(sockfd,buffer,255);
-    if (n < 0) 
-         error("ERROR reading from socket");
-    printf("%s\n",buffer);
-    cout << "Modulo ( liczba pozostalych pakietow): " << length%size_of_packet << endl;
-    close(sockfd); 
-    cout << "////////////////////////////" << endl;
-    cout << "/////////// UDP ////////////" << endl;
-    cout << "////////////////////////////" << endl;
-    int sock;
-    ssize_t recsize;
-    socklen_t fromlen;
-    //memset(&sa, 0, sizeof sa);
-    //sa.sin_family = AF_INET;
-    //sa.sin_addr.s_addr = htonl(INADDR_ANY);
-    //sa.sin_port = htons(7654);
-    fromlen = sizeof serv_addr;
-    sock = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
-    if (bind(sock, (struct sockaddr *)&serv_addr, sizeof serv_addr) == -1) {
-        perror("error bind failed");
-        close(sock);
-        exit(EXIT_FAILURE);
-    }    
-    for (;;) {
-        recsize = recvfrom(sock, (void*)buffer, sizeof length, 0, (struct sockaddr*)&serv_addr, &fromlen);
-        if (recsize < 0) {
-            printf("Error not received a datagram");
-            exit(EXIT_FAILURE);     
-        }
-         printf("recsize: %d\n ", (int)recsize);
-    }
-    return 0;
-    }
+     
+}
