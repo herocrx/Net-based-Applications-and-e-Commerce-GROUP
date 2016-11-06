@@ -6,15 +6,24 @@ import java.net.SocketException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+*Class implements UDP server used for receiving control information
+*
+*@author Ma³gorzata Kêska, Hubert Kuc, Beathe Rothmund
+*@version 1.0
+*@since 2016-11-06
+*/
+
 public class UDPcontrolInfo {
 	DatagramSocket serverSocket;
 	byte[] data = new byte[256];
 
+	
+	//Constructor initialize the socket
 	public UDPcontrolInfo(int portNumber){
 		try {
 			serverSocket=new DatagramSocket(portNumber);
 		} catch (SocketException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -24,19 +33,17 @@ public class UDPcontrolInfo {
 		try {
 		serverSocket.receive(packet);
 	} catch (IOException e) {
-		// TODO Auto-generated catch block
 		e.printStackTrace();
 	}
 	byte[] dataReceived =packet.getData();
-	//int bytesReceived =	packet.getLength();
 	String stringReceived = null;
 	try {
 		stringReceived = new String(dataReceived, "UTF-8");
 	} catch (UnsupportedEncodingException e) {
-		// TODO Auto-generated catch block
 		e.printStackTrace();
 	}
 
+	//Separates the part of the received message based on pattern
 	Pattern pattern=Pattern.compile("'(.*?);");
 	Matcher matcher = pattern.matcher(stringReceived);
 	if (matcher.find())
@@ -58,6 +65,8 @@ public class UDPcontrolInfo {
 	System.out.println(FileName);
 	return true;
 }
+	
+	//Getters
 	String FileName;
 	public String getFileName(){
 		return FileName;

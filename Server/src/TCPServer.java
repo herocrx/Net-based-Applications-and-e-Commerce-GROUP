@@ -7,6 +7,15 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
+/**
+*Class implements TCP part of the program
+*Class is used to send requested via UDP file to the client
+*
+*@author Ma³gorzata Kêska, Hubert Kuc, Beathe Rothmund
+*@version 1.0
+*@since 2016-11-06
+*/
+
 
 public class TCPServer {
 String ClientAddress;
@@ -14,22 +23,21 @@ String FileName;
 int PortNumeber;
 Socket serverSocket;
 
-//Contructor
+//Constructor initialize the socket and the file name
 public TCPServer(String clientAddress, String fileName, int portNumber){
-		FileName=fileName;
-		try {
+	FileName=fileName;	
+	try {
 			serverSocket=new Socket(ClientAddress,portNumber);
 		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+				e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+				e.printStackTrace();
 		}
 
 }
 
 OutputStream out = null;
+//Method checks if requested file is on the server and if yes sends the file
 public Boolean SendFile() throws IOException{
 	File file=null;
 
