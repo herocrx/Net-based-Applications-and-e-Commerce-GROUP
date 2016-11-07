@@ -1,8 +1,12 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.Inet4Address;
 import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.Enumeration;
 /**
 *The program implements Client of simple file transfer protocol 
 *in the way that Client first sends name of the requested file, its address and 
@@ -45,13 +49,15 @@ public class Main {
 		}
 		return HostName;
 	}
-	public static void main(String[] args) throws UnknownHostException {
+	public static void main(String[] args) throws UnknownHostException, SocketException {
 	
 
 		//Create TCPsocket on which server listen
 		TCPpart tcp=new TCPpart(2001);
 		//Create UDPsoctec to send control information
 		UDPcontrolInfo udp=new UDPcontrolInfo(6000);
+		System.out.println(Inet4Address.getLocalHost().getHostAddress().toString());
+		
 		
 		while(true){
 		String FileName=GetFileName();
@@ -63,9 +69,9 @@ public class Main {
 		 HostName=GetHostName();	
 		}
 		
-	
-		System.out.println(InetAddress.getLocalHost().toString());
-		udp.InitializeByteArray(FileName, InetAddress.getLocalHost().toString(), 2001);
+
+		System.out.println();
+		udp.InitializeByteArray(FileName, InetAddress.getLocalHost().getHostAddress().toString(), 2001);
 		udp.SendDataGram(HostName);
 	
 		tcp.SetFileName(FileName);

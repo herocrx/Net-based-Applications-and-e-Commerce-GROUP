@@ -32,7 +32,7 @@ public class UDPcontrolInfo {
 	
 	//Method is use to convert string into byte array
 	public Boolean InitializeByteArray(String FileName, String HostName, int TCPportNumber){
-		String _2sendString="'"+FileName+';'+HostName+','+TCPportNumber+",";
+		String _2sendString=FileName+';'+HostName+';'+TCPportNumber+";";
 		data=new byte[_2sendString.length()];
 		try {
 			data=_2sendString.getBytes("UTF-8");
