@@ -57,6 +57,7 @@ bool client::ReceiveFile(){
      listen(socketfd,5);
      clilen = sizeof(cli_addr);
      newsockfd = accept(socketfd, (struct sockaddr *) &cli_addr, &clilen);
+//cout << "Adress klienta: " << cli_addr.sin_addr.s_addr << endl;
      if (newsockfd < 0) 
           error("ERROR on accept");
      fstream fs;
