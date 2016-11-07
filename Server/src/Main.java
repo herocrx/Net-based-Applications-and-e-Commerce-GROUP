@@ -20,6 +20,7 @@ public class Main {
 		while(true){
 		System.out.println("Waiting for the FileRequest...");
 		udp.ReceiveDataGram();
+		System.out.println(udp.getHostName());
 		TCPServer tcp=new TCPServer(udp.getHostName(),udp.getFileName(), udp.getPortNumber());
 		tcp.SendFile();
 		

@@ -18,7 +18,7 @@ import java.net.UnknownHostException;
 
 
 public class TCPServer {
-String ClientAddress;
+
 String FileName;
 int PortNumeber;
 Socket serverSocket;
@@ -27,7 +27,8 @@ Socket serverSocket;
 public TCPServer(String clientAddress, String fileName, int portNumber){
 	FileName=fileName;	
 	try {
-			serverSocket=new Socket(ClientAddress,portNumber);
+		
+			serverSocket=new Socket(clientAddress,portNumber);
 		} catch (UnknownHostException e) {
 				e.printStackTrace();
 		} catch (IOException e) {

@@ -42,26 +42,30 @@ public class UDPcontrolInfo {
 	} catch (UnsupportedEncodingException e) {
 		e.printStackTrace();
 	}
-
+	System.out.println(stringReceived);
+String [] receivedStrArray=stringReceived.split(";");
+FileName=receivedStrArray[0];
+HostName=receivedStrArray[1];
+PortNumber=Integer.parseInt(receivedStrArray[2]);
 	//Separates the part of the received message based on pattern
-	Pattern pattern=Pattern.compile("'(.*?);");
-	Matcher matcher = pattern.matcher(stringReceived);
-	if (matcher.find())
-	{
-	FileName=matcher.group(1);
-	}
-	pattern=Pattern.compile(";(.*?),");
-	matcher = pattern.matcher(stringReceived);
-	if (matcher.find())
-	{
-	HostName=matcher.group(1);
-	}
-	pattern=Pattern.compile(",(.*?),");
-	matcher = pattern.matcher(stringReceived);
-	if (matcher.find())
-	{
-	PortNumber=Integer.parseInt(matcher.group(1));
-	}
+//	Pattern pattern=Pattern.compile("'(.*?);");
+//	Matcher matcher = pattern.matcher(stringReceived);
+//	if (matcher.find())
+//	{
+//	FileName=matcher.group(1);
+//	}
+//	pattern=Pattern.compile(";(.*?),");
+//	matcher = pattern.matcher(stringReceived);
+//	if (matcher.find())
+//	{
+//	HostName=matcher.group(1);
+//	}
+//	pattern=Pattern.compile(",(.*?),");
+//	matcher = pattern.matcher(stringReceived);
+//	if (matcher.find())
+//	{
+//	PortNumber=Integer.parseInt(matcher.group(1));
+//	}
 	System.out.println(FileName);
 	return true;
 }
