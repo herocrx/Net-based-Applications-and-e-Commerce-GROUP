@@ -14,11 +14,4 @@
 	<natures>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 	</natures>
-	<linkedResources>
-		<link>
-			<name>sample.html</name>
-			<type>1</type>
-			<location>C:/Users/Gosia/Desktop/sample.html</location>
-		</link>
-	</linkedResources>
 </projectDescription>
