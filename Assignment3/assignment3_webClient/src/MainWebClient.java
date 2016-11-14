@@ -14,7 +14,7 @@ import java.util.ArrayList;
 *
 * @author Małgorzata Kęska, Hubert Kuc, Beate Rothmund
 * @version 1.0
-* @since 2016-11-06
+* @since 2016-11-14
 */
 
 public class MainWebClient {
