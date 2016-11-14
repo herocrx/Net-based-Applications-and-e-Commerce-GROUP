@@ -42,6 +42,9 @@ public class WebClient {
 			filename += ".html";
 		} else if (type.equals("text/plain")) {
 			filename += ".txt";
+		} else if (type.equals("image/jpeg") 
+				&& !(resourcePath.endsWith("jpg") || resourcePath.endsWith("jpeg") || resourcePath.endsWith("jpe"))) {
+			filename += ".jpg";
 		}
 		
 		return filename;
