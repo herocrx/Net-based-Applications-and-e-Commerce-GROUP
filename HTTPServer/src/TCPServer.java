@@ -6,6 +6,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.regex.Matcher;
@@ -54,6 +56,18 @@ public class TCPServer {
 		}
 	}
 	
+	private void sendNotImplementedError() throws IOException {
+		String header = "HTTP/1.1 501 Not Implemented\r\n"
+						+ "Allow: GET\r\n"
+						+ "Connection: close\r\n"
+						+ "\r\n"
+						+"Not implemented exception";
+		PrintWriter writer = new PrintWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
+		writer.println(header);
+		writer.close();
+	}
+
+	
 	
 	//Sends the HTTP response
 	public boolean HTTPresponse(){
@@ -74,6 +88,10 @@ public class TCPServer {
 			String Request;
 			Request=in_reader.readLine();
 			System.out.println(Request);
+			if(!Request.split(" ")[0].equals("GET")){
+				sendNotImplementedError();
+				return false;
+			}
 			String fileName=GetFileName(Request).trim();
 			System.out.println(fileName);	
 			FileInputStream fis = null;
@@ -131,7 +149,7 @@ public class TCPServer {
 			}
 			else{
 				String ResponseString="HTTP/1.1 400 Not Found"+"Content-Type: text/html \r\n"+
-						"Connection: Closed\r\n"+"\r\n"+"Error 400 Bad REquest";
+						"Connection: Closed\r\n"+"\r\n"+"Error 400 Bad Request";
 				out.writeBytes(ResponseString);
 				out.flush();
 				clientSocket.close();
