@@ -16,6 +16,7 @@ public class TCPServer {
 	private ServerSocket serverSocket;
 	private Socket clientSocket=null;
 
+	//Construnctor
 	public TCPServer(){
 		try {
 		 serverSocket=new ServerSocket(9001);
@@ -24,8 +25,10 @@ public class TCPServer {
 			e.printStackTrace();
 		}
 	}
+	//Methods finds the name of the requested file
 	private String GetFileName(String request){
-		Pattern pattern=Pattern.compile("/(.*?)HTTP");
+		//GET /RequestedFileName HTTP/1.1
+		Pattern pattern=Pattern.compile("/(.*?)HTTP/1.1");
 		Matcher matcher = pattern.matcher(request);
 		if (matcher.find())
 		{
@@ -34,6 +37,7 @@ public class TCPServer {
 		
 		return null;
 	}
+	//Method retriev the file format
 	private String GetFileType(String fileName){
 		System.out.println(fileName);
 		String [] FileName=fileName.split("\\.");
@@ -50,6 +54,8 @@ public class TCPServer {
 		}
 	}
 	
+	
+	//Sends the HTTP response
 	public boolean HTTPresponse(){
 		
 		//Client Accept
@@ -62,6 +68,7 @@ public class TCPServer {
 			e.printStackTrace();
 			return false;
 		}
+		
 		try {
 			BufferedReader in_reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 			String Request;
@@ -72,6 +79,7 @@ public class TCPServer {
 			FileInputStream fis = null;
 			DataOutputStream  out= new DataOutputStream(clientSocket.getOutputStream());
 			File file=new File(fileName);
+			//Try to find file 
 			try {
 				
 				fis = new FileInputStream(file);
@@ -88,10 +96,10 @@ public class TCPServer {
 			}
 			String fileFormat=GetFileType(fileName);
 			System.out.println(fileFormat);
+			//Check if the file is of allowed format
 			if(fileFormat.contains("html") || fileFormat.contains("jpg") || fileFormat.contains("jpeg")){
-
 			String ContentType=fileFormat.contains("html") ? " text/html":"image/jpeg";
-			
+	
 			
 				
 			String ResponseString = "HTTP/1.1 200 OK \r\n"+
