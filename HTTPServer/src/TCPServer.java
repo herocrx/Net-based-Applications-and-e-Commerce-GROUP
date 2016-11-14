@@ -74,7 +74,7 @@ public class TCPServer {
 			String Request;
 			Request=in_reader.readLine();
 			System.out.println(Request);
-			String fileName=GetFileName(Request);
+			String fileName=GetFileName(Request).trim();
 			System.out.println(fileName);	
 			FileInputStream fis = null;
 			DataOutputStream  out= new DataOutputStream(clientSocket.getOutputStream());
