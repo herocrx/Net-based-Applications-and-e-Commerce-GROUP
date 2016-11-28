@@ -16,7 +16,7 @@ public class CartServlet extends HttpServlet {
 		
 		ArrayList<String> items = new ArrayList<String>();
 		// get items if there's already a session
-		if (!session.isNew()) {
+		if (session != null) {
 			items = (ArrayList<String>) session.getAttribute("items");
 		}
 		
