@@ -12,18 +12,21 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.util.Base64;
+import java.util.Base64.Encoder;
 
 import javax.crypto.*;
 import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 
 
 public class Sender {
 
 	
-	final String PUBLIC_KEY_PATH = "key_a.public";
+	final String PUBLIC_KEY_PATH = "key_b.public";
 	PublicKey key = null;
 	private ServerSocket srvSock=null;
 	private Socket innerSock=null;
@@ -45,6 +48,25 @@ public class Sender {
 	Cipher rsa = null;
 	SecretKey secretKey=null;
 	
+	private PrivateKey readPrivateKey(String privateKeyFile) {
+		PrivateKey key = null;
+		try {
+			ObjectInputStream in = new ObjectInputStream(new FileInputStream(privateKeyFile));
+			key = (PrivateKey) in.readObject();
+			in.close();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return key;
+	}
+	
 	public byte[] EncodeSecretKey(){
 		ReadKey();
 		KeyGenerator keyGen = null;
@@ -56,20 +78,30 @@ public class Sender {
 		}
 		keyGen.init(128);
 		secretKey = keyGen.generateKey();
+		System.out.println("Sytemetric key before encryption: "+new String(secretKey.getEncoded()));
 		String encodedKey = Base64.getEncoder().encodeToString(secretKey.getEncoded());
 		try {
-			rsa = Cipher.getInstance("RSA");
+			rsa = Cipher.getInstance("RSA/ECB/OAEPWithSHA-1AndMGF1Padding");
 			rsa.init(Cipher.ENCRYPT_MODE, key);
-			byte[] cipherBytes = rsa.doFinal((encodedKey.getBytes()));
+			byte[] cipherBytes = Base64.getDecoder().decode(encodedKey);
+					//rsa.doFinal((encodedKey.getBytes()));
 	
+/*			
+			Cipher rsaAlgorithm = Cipher.getInstance("RSA/ECB/OAEPWithSHA-1AndMGF1Padding");
+			rsaAlgorithm.init(Cipher.DECRYPT_MODE, readPrivateKey("key_b.privat"));
+			byte[] decryptedBytes = rsaAlgorithm.doFinal(cipherBytes);
+			// convert byte[] to SecretKey
+			SecretKey symmetricKey = new SecretKeySpec(decryptedBytes, 0, decryptedBytes.length, "AES");
+			System.out.println("Decrypted key");*/
+			
 			return cipherBytes;
-		} catch (IllegalBlockSizeException e1) {
+		} /*catch (IllegalBlockSizeException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		} catch (BadPaddingException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
-		} catch (NoSuchPaddingException e) {
+		}*/ catch (NoSuchPaddingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (InvalidKeyException e) {
@@ -91,12 +123,16 @@ public class Sender {
 		
 		
 		try {
-			Cipher aesCipherForEncryption = Cipher.getInstance("AES/CBC/PKCS5PADDING");
-			aesCipherForEncryption.init(Cipher.ENCRYPT_MODE, secretKey, new IvParameterSpec(iv));
+			Cipher aesCipherForEncryption = Cipher.getInstance("AES");
+			///CBC/PKCS5PADDING
+			aesCipherForEncryption.init(Cipher.ENCRYPT_MODE, secretKey);
 		
 				
 			byte[] byteCipherText = aesCipherForEncryption
 					.doFinal(byteDataToEncrypt);
+			
+			aesCipherForEncryption.init(Cipher.DECRYPT_MODE, secretKey);
+			aesCipherForEncryption.doFinal(byteCipherText);
 			return byteCipherText;
 		
 	
@@ -106,10 +142,7 @@ public class Sender {
 		} catch (InvalidKeyException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (InvalidAlgorithmParameterException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalBlockSizeException e) {
+		}  catch (IllegalBlockSizeException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (BadPaddingException e) {
@@ -130,13 +163,15 @@ public class Sender {
 			PrintWriter FileInfo =new PrintWriter(innerSock.getOutputStream(), true); 
 			FileInfo.println(file.length());
 			FileInfo.println(FilePath);
-			FileInfo.println(new String(EncodeSecretKey(), "UTF-8"));
+			//String toS=new String(EncodeSecretKey(), "UTF-8");
+			String toS=Base64.getEncoder().encodeToString(EncodeSecretKey());;
+			FileInfo.println(toS.length());
+			System.out.println("Encrypted key: "+toS);
+			FileInfo.println(toS);
 			FileInputStream fis = new FileInputStream(file);
 		    BufferedInputStream in = new BufferedInputStream(fis);
 		    byte[] buffer = new byte[(int)file.length()];
-		    
-		    
-		    
+		      
 	        try {
 				out = innerSock.getOutputStream();
 			} catch (IOException e) {
